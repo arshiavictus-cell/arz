@@ -1,0 +1,45 @@
+type Item = { label: string; value: string; change?: number };
+
+export default function Ticker({ items }: { items: Item[] }) {
+  if (items.length === 0) return null;
+  const doubled = [...items, ...items];
+  return (
+    <div className="overflow-hidden border-b border-slate-100 bg-slate-50">
+      <div className="ticker-track flex w-max gap-8 py-2">
+        {doubled.map((it, i) => (
+          <div key={i} className="flex items-center gap-2 whitespace-nowrap px-2">
+            <span className="text-xs font-medium text-slate-500">{it.label}</span>
+            <span className="tabular text-sm font-bold text-slate-900">{it.value}</span>
+            {it.change !== undefined && (
+              <span
+                className={`tabular text-[11px] font-medium ${
+                  it.change > 0
+                    ? "text-emerald-600"
+                    : it.change < 0
+                    ? "text-rose-600"
+                    : "text-slate-400"
+                }`}
+              >
+                {it.change > 0 ? "▲" : it.change < 0 ? "▼" : ""}
+                {new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 1 }).format(
+                  Math.abs(it.change)
+                )}
+                ٪
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+      <style>{`
+        @keyframes ticker {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(50%); }
+        }
+        .ticker-track {
+          animation: ticker 40s linear infinite;
+        }
+        .ticker-track:hover { animation-play-state: paused; }
+      `}</style>
+    </div>
+  );
+}

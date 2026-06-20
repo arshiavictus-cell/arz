@@ -1,0 +1,56 @@
+// متادیتای ارزهای فیات: نام فارسی و پرچم. لیست کامل است؛ نرخ‌ها از API می‌آید.
+
+export type FiatMeta = { faName: string; flag: string };
+
+export const FIAT_META: Record<string, FiatMeta> = {
+  USD: { faName: "دلار آمریکا", flag: "🇺🇸" },
+  EUR: { faName: "یورو", flag: "🇪🇺" },
+  GBP: { faName: "پوند انگلیس", flag: "🇬🇧" },
+  AFN: { faName: "افغانی افغانستان", flag: "🇦🇫" },
+  AED: { faName: "درهم امارات", flag: "🇦🇪" },
+  TRY: { faName: "لیر ترکیه", flag: "🇹🇷" },
+  IRR: { faName: "ریال ایران", flag: "🇮🇷" },
+  SAR: { faName: "ریال عربستان", flag: "🇸🇦" },
+  QAR: { faName: "ریال قطر", flag: "🇶🇦" },
+  KWD: { faName: "دینار کویت", flag: "🇰🇼" },
+  IQD: { faName: "دینار عراق", flag: "🇮🇶" },
+  CNY: { faName: "یوان چین", flag: "🇨🇳" },
+  JPY: { faName: "ین ژاپن", flag: "🇯🇵" },
+  RUB: { faName: "روبل روسیه", flag: "🇷🇺" },
+  INR: { faName: "روپیه هند", flag: "🇮🇳" },
+  PKR: { faName: "روپیه پاکستان", flag: "🇵🇰" },
+  CAD: { faName: "دلار کانادا", flag: "🇨🇦" },
+  AUD: { faName: "دلار استرالیا", flag: "🇦🇺" },
+  CHF: { faName: "فرانک سوئیس", flag: "🇨🇭" },
+  SEK: { faName: "کرون سوئد", flag: "🇸🇪" },
+  NOK: { faName: "کرون نروژ", flag: "🇳🇴" },
+  DKK: { faName: "کرون دانمارک", flag: "🇩🇰" },
+  AZN: { faName: "منات آذربایجان", flag: "🇦🇿" },
+  GEL: { faName: "لاری گرجستان", flag: "🇬🇪" },
+  AMD: { faName: "درام ارمنستان", flag: "🇦🇲" },
+  OMR: { faName: "ریال عمان", flag: "🇴🇲" },
+  BHD: { faName: "دینار بحرین", flag: "🇧🇭" },
+  MYR: { faName: "رینگیت مالزی", flag: "🇲🇾" },
+  THB: { faName: "بات تایلند", flag: "🇹🇭" },
+  KRW: { faName: "وون کره جنوبی", flag: "🇰🇷" },
+  SGD: { faName: "دلار سنگاپور", flag: "🇸🇬" },
+  HKD: { faName: "دلار هنگ‌کنگ", flag: "🇭🇰" },
+  EGP: { faName: "پوند مصر", flag: "🇪🇬" },
+  ZAR: { faName: "راند آفریقای جنوبی", flag: "🇿🇦" },
+  BRL: { faName: "رئال برزیل", flag: "🇧🇷" },
+  MXN: { faName: "پزو مکزیک", flag: "🇲🇽" },
+  IDR: { faName: "روپیه اندونزی", flag: "🇮🇩" },
+  PLN: { faName: "زلوتی لهستان", flag: "🇵🇱" },
+  UAH: { faName: "هریونیا اوکراین", flag: "🇺🇦" },
+  KZT: { faName: "تنگه قزاقستان", flag: "🇰🇿" },
+};
+
+// ترتیب نمایش پربازدیدها در ابتدا
+export const FIAT_ORDER = [
+  "USD", "EUR", "GBP", "AFN", "AED", "TRY", "IRR",
+  "SAR", "QAR", "KWD", "IQD", "CNY", "JPY", "RUB",
+  "INR", "PKR", "CAD", "AUD", "CHF", "AZN", "GEL",
+  "AMD", "OMR", "BHD", "SEK", "NOK", "DKK", "MYR",
+  "THB", "KRW", "SGD", "HKD", "EGP", "ZAR", "BRL",
+  "MXN", "IDR", "PLN", "UAH", "KZT",
+];
