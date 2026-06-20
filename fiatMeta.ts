@@ -2,18 +2,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchCrypto,
   fetchFiat,
-  fetchIranMarket,
   type CryptoCoin,
   type FiatRates,
   type GoldGlobal,
-  type IranMarket,
 } from "../lib/api";
+import { fetchLiveNavasan, type LiveRates } from "../lib/navasanLive";
 
 export type MarketData = {
   fiat: FiatRates | null;
   coins: CryptoCoin[];
   gold: GoldGlobal | null;
-  iran: IranMarket | null; // قیمت‌های واقعی بازار ایران
+  liveIran: LiveRates | null; // قیمت‌های واقعی، زنده و لحظه‌ای
   loading: boolean;
   error: string | null;
   lastUpdated: number | null;
@@ -26,7 +25,7 @@ export function useMarketData() {
     fiat: null,
     coins: [],
     gold: null,
-    iran: null,
+    liveIran: null,
     loading: true,
     error: null,
     lastUpdated: null,
@@ -39,16 +38,20 @@ export function useMarketData() {
       setData((d) => ({ ...d, loading: true }));
     }
     try {
-      const [fiat, crypto, iran] = await Promise.all([
-        fetchFiat(),
-        fetchCrypto(),
-        fetchIranMarket().catch(() => null), // اگر Navasan fail شد، خاموش می‌شود
+      const [fiat, crypto, liveIran] = await Promise.all([
+        fetchFiat().catch(() => null),
+        fetchCrypto().catch(() => ({ coins: [], gold: null })),
+        fetchLiveNavasan().catch((err) => {
+          console.error("Live Navasan err, fallback to empty", err);
+          return null;
+        }),
       ]);
+
       setData({
         fiat,
         coins: crypto.coins,
         gold: crypto.gold,
-        iran,
+        liveIran,
         loading: false,
         error: null,
         lastUpdated: Date.now(),

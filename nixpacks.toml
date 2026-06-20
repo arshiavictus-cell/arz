@@ -1,138 +1,112 @@
-// محاسبه‌ی قیمت طلا و سکه‌ی ایران بر اساس قیمت اونس جهانی و نرخ دلار بازار (تومان)
-//
-// مبنای محاسبه:
-//   ۱ اونس تروی = ۳۱.۱۰۳۴۷۶۸ گرم
-//   قیمت هر گرم طلای خالص (۲۴ عیار) به تومان = (اونس دلار × دلار تومان) / 31.1034768
-//   عیار ۱۸ = خلوص 750  ، عیار ۲۱ = 875 ، عیار ۲۲ = 916/22 ، عیار ۲۴ = 999
-//
-// قیمت ذاتی سکه = وزن طلای خالص سکه × قیمت هر گرم خالص.
-// قیمت معاملاتی سکه معمولاً به‌خاطر «حباب» بالاتر است؛ ضریب حباب تقریبی لحاظ شده است.
+// ابزار دریافت و پارس کردن زنده قیمت‌های واقعی بازار ایران از ویجت زنده نوسان
+// این روش نیازی به کلید ندارد و ۱۰۰٪ زنده و آپدیت است (قیمت‌های واقعی بازار تهران)
 
-const GRAMS_PER_OUNCE = 31.1034768;
-
-export type GoldItem = {
-  key: string;
-  title: string;
-  subtitle: string;
-  tomanPerGram: number;
+export type LiveRates = {
+  usd: number; // دلار آزاد
+  eur: number; // یورو
+  gbp: number; // پوند
+  afn: number; // افغانی
+  ayar18: number; // طلای ۱۸ عیار
+  sekkeh: number; // سکه امامی
+  bahar: number; // سکه بهار آزادی
+  nim: number; // نیم سکه
+  rob: number; // ربع سکه
+  mesghal: number; // مثقال طلا
+  gerami: number; // سکه گرمی
+  updatedTime: string;
 };
 
-export type CoinItem = {
-  key: string;
-  title: string;
-  subtitle: string;
-  toman: number;
-};
-
-export function computeGoldPrices(ounceUsd: number, usdToman: number): GoldItem[] {
-  const pure24PerGram = (ounceUsd * usdToman) / GRAMS_PER_OUNCE; // عیار ۹۹۹/۲۴
-  const purity = {
-    k24: 0.995,
-    k22: 0.916,
-    k21: 0.875,
-    k18: 0.75,
-    k14: 0.585,
-  };
-  const base = pure24PerGram; // هر گرم خالص
-
-  return [
-    {
-      key: "ounce",
-      title: "انس طلای جهانی",
-      subtitle: "هر اونس (دلار)",
-      tomanPerGram: ounceUsd, // نمایش دلاری جدا انجام می‌شود
-    },
-    {
-      key: "g24",
-      title: "طلای ۲۴ عیار",
-      subtitle: "هر گرم (تومان)",
-      tomanPerGram: base * purity.k24,
-    },
-    {
-      key: "g22",
-      title: "طلای ۲۲ عیار",
-      subtitle: "هر گرم (تومان)",
-      tomanPerGram: base * purity.k22,
-    },
-    {
-      key: "g21",
-      title: "طلای ۲۱ عیار",
-      subtitle: "هر گرم (تومان)",
-      tomanPerGram: base * purity.k21,
-    },
-    {
-      key: "g18",
-      title: "طلای ۱۸ عیار",
-      subtitle: "هر گرم (تومان)",
-      tomanPerGram: base * purity.k18,
-    },
-    {
-      key: "g14",
-      title: "طلای ۱۴ عیار",
-      subtitle: "هر گرم (تومان)",
-      tomanPerGram: base * purity.k14,
-    },
-    {
-      key: "mesghal",
-      title: "مثقال طلا",
-      subtitle: "هر مثقال ۱۷ عیار (تومان)",
-      tomanPerGram: base * 0.705 * 4.6083, // مثقال = ۴.۶۰۸۳ گرم، عیار آبشده ۷۰۵
-    },
-  ];
+// تبدیل اعداد فارسی به انگلیسی
+export function faToEn(str: string): string {
+  const faNums = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+  const arNums = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+  let res = str;
+  for (let i = 0; i < 10; i++) {
+    res = res.replace(new RegExp(faNums[i], "g"), i.toString());
+    res = res.replace(new RegExp(arNums[i], "g"), i.toString());
+  }
+  return res;
 }
 
-// وزن طلای خالص هر سکه (گرم) با عیار ۹۰۰
-const COIN_PURE_GOLD = {
-  emami: 7.3224, // سکه امامی / بهار آزادی جدید
-  bahar: 7.3224, // بهار آزادی
-  nim: 3.6612, // نیم سکه
-  rob: 1.8306, // ربع سکه
-  gerami: 0.9, // سکه گرمی ~ ۱ گرم
-};
+// پارس کردن مقدار عددی از متن (حذف کاما و فاصله‌ها و تبدیل حروف فارسی)
+export function parsePrice(text: string): number {
+  const clean = faToEn(text).replace(/,/g, "").trim();
+  const num = parseFloat(clean);
+  return isNaN(num) ? 0 : num;
+}
 
-// ضریب حباب تقریبی بازار برای هر نوع سکه
-const COIN_BUBBLE = {
-  emami: 1.28,
-  bahar: 1.24,
-  nim: 1.45,
-  rob: 1.75,
-  gerami: 2.0,
-};
+export function fetchLiveNavasan(): Promise<LiveRates> {
+  return new Promise((resolve, reject) => {
+    // ایجاد نام یکتای تابع Callback
+    const callbackName = "navasan_callback_" + Math.round(Math.random() * 1000000);
 
-export function computeCoinPrices(ounceUsd: number, usdToman: number): CoinItem[] {
-  const pure24PerGram = (ounceUsd * usdToman) / GRAMS_PER_OUNCE;
-  const intrinsic = (grams: number, purity = 0.9) => pure24PerGram * grams * (purity / 0.995);
+    // تعریف تابع سراسری برای دریافت اطلاعات
+    (window as any)[callbackName] = (htmlContent: string) => {
+      try {
+        // تمیزکاری سراسری
+        delete (window as any)[callbackName];
+        const scriptTag = document.getElementById(callbackName);
+        if (scriptTag) scriptTag.remove();
 
-  return [
-    {
-      key: "emami",
-      title: "سکه امامی",
-      subtitle: "طرح جدید (تومان)",
-      toman: intrinsic(COIN_PURE_GOLD.emami) * COIN_BUBBLE.emami,
-    },
-    {
-      key: "bahar",
-      title: "سکه بهار آزادی",
-      subtitle: "طرح قدیم (تومان)",
-      toman: intrinsic(COIN_PURE_GOLD.bahar) * COIN_BUBBLE.bahar,
-    },
-    {
-      key: "nim",
-      title: "نیم سکه",
-      subtitle: "بهار آزادی (تومان)",
-      toman: intrinsic(COIN_PURE_GOLD.nim) * COIN_BUBBLE.nim,
-    },
-    {
-      key: "rob",
-      title: "ربع سکه",
-      subtitle: "بهار آزادی (تومان)",
-      toman: intrinsic(COIN_PURE_GOLD.rob) * COIN_BUBBLE.rob,
-    },
-    {
-      key: "gerami",
-      title: "سکه گرمی",
-      subtitle: "یک گرمی (تومان)",
-      toman: intrinsic(COIN_PURE_GOLD.gerami) * COIN_BUBBLE.gerami,
-    },
-  ];
+        // پارس کردن HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, "text/html");
+
+        const getVal = (id: string): number => {
+          const row = doc.getElementById(id);
+          if (!row) return 0;
+          const valTd = row.querySelector(".val");
+          return valTd ? parsePrice(valTd.textContent || "") : 0;
+        };
+
+        const getTime = (id: string): string => {
+          const row = doc.getElementById(id);
+          if (!row) return "";
+          const datTd = row.querySelector(".dat");
+          return datTd ? faToEn(datTd.textContent || "").trim() : "";
+        };
+
+        const rates: LiveRates = {
+          usd: getVal("usd"),
+          eur: getVal("eur"),
+          gbp: getVal("gbp"),
+          afn: getVal("afn"),
+          ayar18: getVal("18ayar"),
+          sekkeh: getVal("sekkeh"),
+          bahar: getVal("bahar"),
+          nim: getVal("nim"),
+          rob: getVal("rob"),
+          mesghal: getVal("abshodeh"),
+          gerami: getVal("gerami"),
+          updatedTime: getTime("usd") || getTime("18ayar") || "لحظه‌ای",
+        };
+
+        resolve(rates);
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    // اضافه کردن اسکریپت به سند
+    const script = document.createElement("script");
+    script.id = callbackName;
+    // لینک مستقیم ویجت نوسان با ارجاع به Callback ما
+    script.src = `https://www.navasan.tech/wp-navasan.php?usd&eur&gbp&afn&sekkeh&bahar&nim&rob&18ayar&abshodeh&gerami&callback=${callbackName}`;
+    
+    // حل مشکل عدم لود یا خطای شبکه
+    script.onerror = () => {
+      delete (window as any)[callbackName];
+      script.remove();
+      reject(new Error("خطا در لود اسکریپت نوسان"));
+    };
+
+    // چون اسکریپت نوسان خروجی را به صورت `navasanret('...')` صدا می‌زند، ما باید موقتاً `navasanret` را به تابع خودمان نگاشت کنیم.
+    (window as any)["navasanret"] = (data: string) => {
+      if ((window as any)[callbackName]) {
+        (window as any)[callbackName](data);
+      }
+    };
+
+    document.body.appendChild(script);
+  });
 }
