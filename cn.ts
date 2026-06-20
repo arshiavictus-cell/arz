@@ -1,35 +1,56 @@
-// ابزارهای فرمت‌بندی اعداد و تاریخ
+// متادیتای ارزهای فیات: نام فارسی و پرچم. لیست کامل است؛ نرخ‌ها از API می‌آید.
 
-export function formatNumber(value: number, maxFrac = 0): string {
-  if (!isFinite(value)) return "—";
-  return new Intl.NumberFormat("fa-IR", {
-    maximumFractionDigits: maxFrac,
-    minimumFractionDigits: 0,
-  }).format(value);
-}
+export type FiatMeta = { faName: string; flag: string };
 
-export function formatUsd(value: number): string {
-  if (!isFinite(value)) return "—";
-  const frac = value >= 1000 ? 0 : value >= 1 ? 2 : value >= 0.01 ? 4 : 6;
-  return new Intl.NumberFormat("fa-IR", {
-    maximumFractionDigits: frac,
-    minimumFractionDigits: 0,
-  }).format(value);
-}
+export const FIAT_META: Record<string, FiatMeta> = {
+  USD: { faName: "دلار آمریکا", flag: "🇺🇸" },
+  EUR: { faName: "یورو", flag: "🇪🇺" },
+  GBP: { faName: "پوند انگلیس", flag: "🇬🇧" },
+  AFN: { faName: "افغانی افغانستان", flag: "🇦🇫" },
+  AED: { faName: "درهم امارات", flag: "🇦🇪" },
+  TRY: { faName: "لیر ترکیه", flag: "🇹🇷" },
+  IRR: { faName: "ریال ایران", flag: "🇮🇷" },
+  SAR: { faName: "ریال عربستان", flag: "🇸🇦" },
+  QAR: { faName: "ریال قطر", flag: "🇶🇦" },
+  KWD: { faName: "دینار کویت", flag: "🇰🇼" },
+  IQD: { faName: "دینار عراق", flag: "🇮🇶" },
+  CNY: { faName: "یوان چین", flag: "🇨🇳" },
+  JPY: { faName: "ین ژاپن", flag: "🇯🇵" },
+  RUB: { faName: "روبل روسیه", flag: "🇷🇺" },
+  INR: { faName: "روپیه هند", flag: "🇮🇳" },
+  PKR: { faName: "روپیه پاکستان", flag: "🇵🇰" },
+  CAD: { faName: "دلار کانادا", flag: "🇨🇦" },
+  AUD: { faName: "دلار استرالیا", flag: "🇦🇺" },
+  CHF: { faName: "فرانک سوئیس", flag: "🇨🇭" },
+  SEK: { faName: "کرون سوئد", flag: "🇸🇪" },
+  NOK: { faName: "کرون نروژ", flag: "🇳🇴" },
+  DKK: { faName: "کرون دانمارک", flag: "🇩🇰" },
+  AZN: { faName: "منات آذربایجان", flag: "🇦🇿" },
+  GEL: { faName: "لاری گرجستان", flag: "🇬🇪" },
+  AMD: { faName: "درام ارمنستان", flag: "🇦🇲" },
+  OMR: { faName: "ریال عمان", flag: "🇴🇲" },
+  BHD: { faName: "دینار بحرین", flag: "🇧🇭" },
+  MYR: { faName: "رینگیت مالزی", flag: "🇲🇾" },
+  THB: { faName: "بات تایلند", flag: "🇹🇭" },
+  KRW: { faName: "وون کره جنوبی", flag: "🇰🇷" },
+  SGD: { faName: "دلار سنگاپور", flag: "🇸🇬" },
+  HKD: { faName: "دلار هنگ‌کنگ", flag: "🇭🇰" },
+  EGP: { faName: "پوند مصر", flag: "🇪🇬" },
+  ZAR: { faName: "راند آفریقای جنوبی", flag: "🇿🇦" },
+  BRL: { faName: "رئال برزیل", flag: "🇧🇷" },
+  MXN: { faName: "پزو مکزیک", flag: "🇲🇽" },
+  IDR: { faName: "روپیه اندونزی", flag: "🇮🇩" },
+  PLN: { faName: "زلوتی لهستان", flag: "🇵🇱" },
+  UAH: { faName: "هریونیا اوکراین", flag: "🇺🇦" },
+  KZT: { faName: "تنگه قزاقستان", flag: "🇰🇿" },
+};
 
-export function formatPercent(value: number): string {
-  if (!isFinite(value)) return "—";
-  const sign = value > 0 ? "+" : "";
-  return `${sign}${new Intl.NumberFormat("fa-IR", {
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 2,
-  }).format(value)}٪`;
-}
-
-export function timeNow(): string {
-  return new Intl.DateTimeFormat("fa-IR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).format(new Date());
-}
+// ترتیب نمایش پربازدیدها در ابتدا
+export const FIAT_ORDER = [
+  "USD", "EUR", "GBP", "AFN", "AED", "TRY", "IRR",
+  "SAR", "QAR", "KWD", "IQD", "CNY", "JPY", "RUB",
+  "INR", "PKR", "CAD", "AUD", "CHF", "AZN", "GEL",
+  "AMD", "OMR", "BHD", "SEK", "NOK", "DKK", "MYR",
+  "THB", "KRW", "SGD", "HKD", "EGP", "ZAR", "BRL",
+  "MXN", "IDR", "PLN", "UAH", "KZT",
+];

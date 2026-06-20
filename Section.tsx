@@ -5,7 +5,7 @@ type Props = {
   loading: boolean;
   error: string | null;
   lastUpdated: number | null;
-  usdToman: number;
+  usdToman: number | null;
   onRefresh: () => void;
   query: string;
   onQueryChange: (v: string) => void;
@@ -78,10 +78,12 @@ export default function Header({
 
           <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5">
             <label className="whitespace-nowrap text-xs text-slate-500">
-              دلار بازار (واقعی):
+              دلار بازار آزاد:
             </label>
             <span className="tabular font-bold text-slate-900">
-              {new Intl.NumberFormat("fa-IR").format(usdToman)}
+              {usdToman
+                ? `${new Intl.NumberFormat("fa-IR").format(usdToman)} تومان`
+                : "دریافت نشد"}
             </span>
           </div>
         </div>

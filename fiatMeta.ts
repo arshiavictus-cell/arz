@@ -1,18 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  fetchCrypto,
-  fetchFiat,
-  type CryptoCoin,
-  type FiatRates,
-  type GoldGlobal,
-} from "../lib/api";
-import { fetchLiveNavasan, type LiveRates } from "../lib/navasanLive";
+import { fetchLiveMarket, type LiveMarketData } from "../lib/api";
 
-export type MarketData = {
-  fiat: FiatRates | null;
-  coins: CryptoCoin[];
-  gold: GoldGlobal | null;
-  liveIran: LiveRates | null; // قیمت‌های واقعی، زنده و لحظه‌ای
+export type MarketState = {
+  market: LiveMarketData | null;
   loading: boolean;
   error: string | null;
   lastUpdated: number | null;
@@ -21,47 +11,31 @@ export type MarketData = {
 const REFRESH_MS = 30_000;
 
 export function useMarketData() {
-  const [data, setData] = useState<MarketData>({
-    fiat: null,
-    coins: [],
-    gold: null,
-    liveIran: null,
+  const [state, setState] = useState<MarketState>({
+    market: null,
     loading: true,
     error: null,
     lastUpdated: null,
   });
-
   const timer = useRef<number | null>(null);
 
   const load = useCallback(async (silent = false) => {
-    if (!silent) {
-      setData((d) => ({ ...d, loading: true }));
-    }
-    try {
-      const [fiat, crypto, liveIran] = await Promise.all([
-        fetchFiat().catch(() => null),
-        fetchCrypto().catch(() => ({ coins: [], gold: null })),
-        fetchLiveNavasan().catch((err) => {
-          console.error("Live Navasan err, fallback to empty", err);
-          return null;
-        }),
-      ]);
+    if (!silent) setState((current) => ({ ...current, loading: true }));
 
-      setData({
-        fiat,
-        coins: crypto.coins,
-        gold: crypto.gold,
-        liveIran,
+    try {
+      const market = await fetchLiveMarket();
+      setState({
+        market,
         loading: false,
         error: null,
         lastUpdated: Date.now(),
       });
-    } catch (e) {
-      setData((d) => ({
-        ...d,
+    } catch {
+      setState((current) => ({
+        ...current,
         loading: false,
         error:
-          "خطا در دریافت اطلاعات لحظه‌ای. اتصال اینترنت را بررسی کنید؛ تلاش مجدد به‌صورت خودکار انجام می‌شود.",
+          "اتصال به API زنده برقرار نشد. در Railway باید سرور Node همین پروژه اجرا شود؛ قیمت ساختگی نمایش داده نمی‌شود.",
       }));
     }
   }, []);
@@ -74,5 +48,5 @@ export function useMarketData() {
     };
   }, [load]);
 
-  return { ...data, refresh: () => load(false) };
+  return { ...state, refresh: () => load(false) };
 }
